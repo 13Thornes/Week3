@@ -2,10 +2,23 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const route = require('./routes.js');
-const myEmitter = require('./logEvents.js');
+const EventEmitter = require('events');
+const { error } = require('console');
+class MyEmitter extends EventEmitter {};
+const myEmitter = new EventEmitter();
 
-global.DEBUG = false;
+myEmitter.on('route', (url) => {
+    const d = new Date();
+    if(DEBUG) console.log(`Route Event on: ${url} at ${d}`);
+    if(!fs.existsSync(path.join(__dirname, 'logs'))) {
+        fs.mkdirSync(path.join(__dirname, 'logs'));
+    }
+    fs.appendFile(path.join(__dirname, 'logs', 'route.log'), `Route Event on: ${url} at ${d}`)
+    if(error) throw error;
+});
+
+
+global.DEBUG = true;
 
 const server = http.createServer((request, response) => {
   if(DEBUG) console.log('Request Url:', request.url);
